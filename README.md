@@ -29,6 +29,7 @@ Edges → define execution order
 Start Node → always the first in the list
 
 Loop Condition → stops when a rule is satisfied
+
 Example graph structure:
 {
   "nodes": ["extract_functions", "check_complexity", "detect_issues", "suggest_improvements"],
@@ -146,4 +147,5 @@ Here you can:
 🏁 Conclusion
 
 This workflow engine demonstrates a clean, modular, and extensible design suitable for orchestrating sequential and iterative tasks. With node registration, state passing, looping logic, and full API control, it forms a solid foundation for building lightweight agent systems and automated pipelines.
+
 
