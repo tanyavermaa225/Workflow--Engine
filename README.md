@@ -29,43 +29,45 @@ Edges → define execution order
 Start Node → always the first in the list
 
 Loop Condition → stops when a rule is satisfied
+Example graph structure:
+{
+  "nodes": ["extract_functions", "check_complexity", "detect_issues", "suggest_improvements"],
+  "edges": {
+    "extract_functions": "check_complexity",
+    "check_complexity": "detect_issues",
+    "detect_issues": "suggest_improvements",
+    "suggest_improvements": "suggest_improvements"
+  }
+}
+
 
 The engine stores these workflows in memory and executes them dynamically.
 
 2. State Management
 
 Each node receives the same mutable state dictionary.
+state = {
+    "code": "def x(): pass",
+    "quality_score": 0,
+    "issues": []
+}
+
 Nodes read, write, or update values inside this state.
 
 The final state after execution is saved and can be retrieved later using a unique run_id.
 
 3. Node Execution
+Example node registration (illustrative only):
+@tool_registry.register("extract_functions")
+def extract_functions(state):
+    ...
+    return state
 
-Each node performs a specific function, such as:
-
-1. Extracting data
-2. Analyzing or transforming state
-3. Calculating metrics
-4. Improving quality scores
-5. Detecting issues
-
-These tasks are registered automatically inside the system as “tools,” making them reusable and modular.
-
-4. Looping Behaviour
-
-One of the assignment’s key requirements is demonstrated through a loop:
-
-The engine continues to run a particular node multiple times until a stopping condition is reached.
-
-Example behaviour (conceptually):
-
-Run suggest_improvements
-→ quality below threshold → loop again
-→ quality below threshold → loop again
-→ quality >= threshold → stop
-
-
-This replicates common workflow AI/agent logic where results improve over iterations.
+5. Looping Behaviour
+ The assignment requires a looping step:
+if current_node == "suggest_improvements":
+    if state["quality_score"] < 70:
+        # loop again
 
 📡 REST API Endpoints
 
@@ -86,6 +88,23 @@ The response includes:
 1. run_id (unique identifier)
 2. final_state
 3. log (all execution steps)
+  Example output: 
+   {
+  "run_id": "123abc...",
+  "final_state": {
+    "quality_score": 70,
+    "issues": 3,
+    "functions": ["func1", "func2", "func3"]
+  },
+  "log": [
+    "Ran: extract_functions",
+    "Ran: check_complexity",
+    "Ran: detect_issues",
+    "Ran: suggest_improvements",
+    "Loop ended: threshold reached"
+  ]
+}
+
 
 ✔ Retrieve Run State
 GET /graph/state/{run_id}
@@ -127,3 +146,4 @@ Here you can:
 🏁 Conclusion
 
 This workflow engine demonstrates a clean, modular, and extensible design suitable for orchestrating sequential and iterative tasks. With node registration, state passing, looping logic, and full API control, it forms a solid foundation for building lightweight agent systems and automated pipelines.
+
